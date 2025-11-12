@@ -243,15 +243,15 @@ gs_matrix<Type, Rows, Columns> gs_invert(const gs_matrix<Type, Rows, Columns>& _
 
 int main(int argc, char *argv[])
 {
-    // gs_autotests_gs_utilities();
-    // gs_autotests_gs_vector();
-    // gs_autotests_gs_matrix();
+    gs_autotests_gs_utilities();
+    gs_autotests_gs_vector();
+    gs_autotests_gs_matrix();
 
-    gs_mat4f mat(1);
+    //gs_mat4f mat(1);
 
-    gs_matrix_rotate(
-        mat,
-        gs_vec3f({(float)gs_to_radians(45), (float)gs_to_radians(45), (float)gs_to_radians(45)}));
+    // gs_matrix_rotate(
+    //     mat,
+    //     gs_vec3f({(float)gs_to_radians(45), (float)gs_to_radians(45), (float)gs_to_radians(45)}));
 
     return 0;
 }

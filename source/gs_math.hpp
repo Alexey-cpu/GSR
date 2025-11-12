@@ -561,7 +561,7 @@ template<typename Type, int Size>
 inline gs_vector<Type, Size> gs_vector_normalize(const gs_vector<Type, Size>& _Vector)
 {
     gs_vector<Type, Size> result(0);
-    const Type length = gs_vector_length(_Vector);
+    const Type length = static_cast<Type>(gs_vector_length(_Vector));
 
     if(length < gs_epsilon<Type>()) 
     {
