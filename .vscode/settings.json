@@ -1,10 +1,12 @@
 {
     "files.associations": {
+        "*.cpp": "cpp",
         "algorithm": "cpp",
         "cmath": "cpp",
         "bitset": "cpp",
         "map": "cpp",
         "set": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "limits": "cpp"
     }
 }
