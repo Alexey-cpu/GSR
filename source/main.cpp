@@ -225,6 +225,22 @@ void gs_autotests_gs_matrix()
     }
 }
 
+template<typename Type, int Rows, int Columns>
+gs_matrix<Type, Rows, Columns> gs_right_looking_lu_factor(const gs_matrix<Type, Rows, Columns>& _Matrix)
+{
+    // TODO: implement right-looking LU factorization here
+    gs_matrix<Type, Rows, Columns> LU(1);
+    return LU(1);
+}
+
+template<typename Type, int Rows, int Columns>
+gs_matrix<Type, Rows, Columns> gs_invert(const gs_matrix<Type, Rows, Columns>& _Matrix)
+{
+    // TODO: implement matrix inversion using right-looking LU factorization here
+    gs_matrix<Type, Rows, Columns> Inverted(1);
+    return LU(1);
+}
+
 int main(int argc, char *argv[])
 {
     // gs_autotests_gs_utilities();
