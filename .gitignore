@@ -1,0 +1,7 @@
+build/
+bin/
+dist/
+logs/
+*.pro.user
+*.txt.user
+*.ini
