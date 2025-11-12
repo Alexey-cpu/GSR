@@ -4,8 +4,8 @@
 #include <cassert>
 
 // C++
-#include <limits>
-#include <typeinfo>
+#include <limits>   // TODO: may be implement this ourselves ???
+#include <typeinfo> // TODO: move it into autetests separate folder !!!
 
 #define GS_ASSERT assert
 #define GS_STRINGIFY(INPUT) #INPUT
@@ -308,10 +308,6 @@ struct gs_vector final
 private:
     Type Data[Size]{0};
 };
-
-		// GLM_FUNC_DISCARD_DECL GLM_CONSTEXPR mat<3, 3, T, Q> & operator-=(mat<3, 3, U, Q> const& m);
-		// template<typename U>
-		// GLM_FUNC_DISCARD_DECL GLM_CONSTEXPR mat<3, 3, T, Q> & operator*=(U s);
 
 template<typename Type, int Rows, int Columns>
 struct gs_matrix final
