@@ -14,6 +14,8 @@ add_executable(GSR
 ${HEADERS} 
 ${SOURCES})
 
+target_include_directories(GSR PUBLIC ${DIRECTORIES})
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
