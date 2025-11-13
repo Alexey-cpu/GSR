@@ -213,16 +213,16 @@ void gs_autotests_gs_matrix()
         auto mat_c = mat_b * mat_a;
 
         printf("mat_a:\n");
-        gs_matrix_print(mat_a);
+        gs_print(mat_a);
         printf("mat_b:\n");
-        gs_matrix_print(mat_b);
+        gs_print(mat_b);
         printf("mat_c:\n");
-        gs_matrix_print(mat_c);
+        gs_print(mat_c);
 
         auto transposed = gs_matrix_transpose(mat_c);
 
         printf("transposed mat_c:\n");
-        gs_matrix_print(transposed);
+        gs_print(transposed);
     }
 }
 
@@ -277,9 +277,11 @@ int main(int argc, char *argv[])
     auto lu = gs_matrix_lu_factor(mat_a);
 
     printf("A\n");
-    gs_matrix_print(mat_a);
+    gs_print(mat_a);
     printf("LU\n");
-    gs_matrix_print(lu);
+    gs_print(lu.Matrix);
+    printf("p\n");
+    gs_print(lu.InverseRowsPermutations);
 
     // printf("int vector\n");
     // {

@@ -532,15 +532,6 @@ private:
     }
 };
 
-template<typename Type, int Size>
-void gs_vector_print(const gs_vector<Type, Size>& _Vector)
-{
-    printf("[");
-    for (int i = 0; i < _Vector.length(); i++)
-        printf("%f;\t", static_cast<double>(_Vector[i]));
-    printf("]\n");
-}
-
 template<typename Type>
 inline double gs_sum_of_squares(Type _A)
 {
@@ -630,7 +621,7 @@ inline gs_vector<Type, 3> gs_vector_cross(const gs_vector<Type, 3>& _A, const gs
 }
 
 template<typename Type, int Rows, int Columns>
-void gs_matrix_print(const gs_matrix<Type, Rows, Columns>& _Matrix)
+void gs_print(const gs_matrix<Type, Rows, Columns>& _Matrix)
 {
     printf("[");
     for (int i = 0; i < Rows; i++)
@@ -648,6 +639,15 @@ void gs_matrix_print(const gs_matrix<Type, Rows, Columns>& _Matrix)
         else
             printf("]\n");
     }
+}
+
+template<typename Type, int Size>
+void gs_print(const gs_vector<Type, Size>& _Vector)
+{
+    printf("[");
+    for (int i = 0; i < _Vector.length(); i++)
+        printf("%f;\t", static_cast<double>(_Vector[i]));
+    printf("]\n");
 }
 
 template<typename Type, int Rows, int Columns>
@@ -717,28 +717,24 @@ inline gs_matrix<Type, 4, 4> gs_matrix_rotate(const gs_matrix<Type, 4, 4>& _Matr
 }
 
 // TODO: implement the following functions
-template<typename Type>
-inline gs_matrix<Type, 4, 4> gs_ortho(const Type& _Left, const Type& _Right, const Type& _Top, const Type& _Bottom)
+template<typename Type, int Size>
+auto gs_matrix_lu_factor(const gs_matrix<Type, Size, Size>& _Matrix)
 {
-    return gs_matrix<Type, 4, 4>(1);
-}
-
-template<typename Type, int Rows, int Columns>
-gs_matrix<Type, Rows, Columns> gs_matrix_lu_factor(const gs_matrix<Type, Rows, Columns>& _Matrix)
-{
-    // copy input matrix
-    gs_matrix<Type, Rows, Columns> LU = _Matrix;
-
-    // Main operation:
-    for(int i = 0; i < Columns; i++) // iterating through all the columns
+    struct
     {
-        // pivot search within the column
-        Type vmax = LU[i][i];
+        gs_matrix<Type, Size, Size> Matrix;
+        gs_vector<Type, Size>            InverseRowsPermutations;
+    } result = {_Matrix, gs_vector<Type, Size>(0)};
+
+    for(int i = 0; i < Size; i++)
+    {
+        // search pivot within the column
+        Type vmax = result.Matrix[i][i];
         int  imax = i;
 
-        for(int j = i + 1; j < Rows; j++ )
+        for(int j = i + 1; j < Size; j++ )
         {
-            Type temp = gs_abs(LU[i][j]);
+            Type temp = gs_abs(result.Matrix[i][j]);
 
             if(temp > vmax)
             {
@@ -747,38 +743,48 @@ gs_matrix<Type, Rows, Columns> gs_matrix_lu_factor(const gs_matrix<Type, Rows, C
             }
         }
 
-        if(gs_abs(vmax) <= 0) continue;
+        if(gs_abs(vmax) <= 0)
+            continue;
 
-        // rows intercnange
+        // intercnange rows
         if(i != imax)
         {
-            for(int j = 0 ; j < Columns; j++)
-                gs_swap(LU[j][i], LU[j][imax]);
+            for(int j = 0 ; j < Size; j++)
+                gs_swap(result.Matrix[j][i], result.Matrix[j][imax]);
         }
 
-        // column scaling:  A(j,i) = A(j,i) /  A(i,i)
-        for(int j = i + 1; j < Rows; j++)
-            LU[i][j] /= LU[i][i];
+        // scale column:  A(j,i) = A(j,i) /  A(i,i)
+        for(int j = i + 1; j < Size; j++)
+            result.Matrix[i][j] /= result.Matrix[i][i];
 
-        // Schur complement computation: A(k,j) = A(k,j) - A(i,j) * A(k,i)
-        for(int j = i + 1; j < Columns; j++)
+        // compute Schur complement: A(k,j) = A(k,j) - A(i,j) * A(k,i)
+        for(int j = i + 1; j < Size; j++)
         {
-            Type temp = LU[j][i];
+            Type temp = result.Matrix[j][i];
 
-            for(int k = i + 1; k < Rows; k++)
-                LU[j][k] -= temp * LU[i][k];
+            for(int k = i + 1; k < Size; k++)
+                result.Matrix[j][k] -= temp * result.Matrix[i][k];
         }
+
+        // retrieve rows permutation vector
+        result.InverseRowsPermutations[imax] = i;
     }
 
-    return LU;
+    return result;
 }
 
 template<typename Type, int Rows, int Columns>
 gs_matrix<Type, Rows, Columns> gs_invert(const gs_matrix<Type, Rows, Columns>& _Matrix)
 {
     // TODO: implement matrix inversion using right-looking LU factorization here
-    gs_matrix<Type, Rows, Columns> Inverted(1);
     return LU(1);
+}
+
+// TODO: move this to geometry header !!!
+template<typename Type>
+inline gs_matrix<Type, 4, 4> gs_ortho(const Type& _Left, const Type& _Right, const Type& _Top, const Type& _Bottom)
+{
+    return gs_matrix<Type, 4, 4>(1);
 }
 
 // vectors typedefs
