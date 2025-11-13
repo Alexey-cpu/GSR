@@ -46,7 +46,7 @@ void gs_autotests_gs_vector()
 
     vector4f vec_a_nrm = gs_vector_normalize(vec_a);
     for (int i = 0; i < vec_a.length(); i++)
-        GS_ASSERT(gl_abs(vec_a_nrm[i] - vec_a[i] / gs_vector_length(vec_a)) < 1e-3);
+        GS_ASSERT(gs_abs(vec_a_nrm[i] - vec_a[i] / gs_vector_length(vec_a)) < 1e-3);
     printf("gs_vector_normalize(gs_vector<%s, %d>) cuccess\n", typeid(vector4f::value_type).name(), Size4);
 
     // !=
@@ -192,6 +192,7 @@ void gs_autotests_gs_matrix()
     }
     printf("gs_matrix<...> - cuccess\n");
 
+    printf("multiply non square matrixes\n");
     {
         mat3x2f mat_a;
         mat_a[0][0] = 1.f;
@@ -209,7 +210,7 @@ void gs_autotests_gs_matrix()
         mat_b[2][0] = 5.f;
         mat_b[2][1] = 6.f;
 
-        auto mat_c = mat_a * mat_b;
+        auto mat_c = mat_b * mat_a;
 
         printf("mat_a:\n");
         gs_matrix_print(mat_a);
@@ -225,33 +226,93 @@ void gs_autotests_gs_matrix()
     }
 }
 
-template<typename Type, int Rows, int Columns>
-gs_matrix<Type, Rows, Columns> gs_right_looking_lu_factor(const gs_matrix<Type, Rows, Columns>& _Matrix)
-{
-    // TODO: implement right-looking LU factorization here
-    gs_matrix<Type, Rows, Columns> LU(1);
-    return LU(1);
-}
+#include <random>
 
-template<typename Type, int Rows, int Columns>
-gs_matrix<Type, Rows, Columns> gs_invert(const gs_matrix<Type, Rows, Columns>& _Matrix)
+template< typename __type >
+class PseudoRandomNumberGenerator
 {
-    // TODO: implement matrix inversion using right-looking LU factorization here
-    gs_matrix<Type, Rows, Columns> Inverted(1);
-    return LU(1);
-}
+private:
+
+    std::mt19937_64 m_PseudoRandomNumberGenerator = std::mt19937_64( (uint_fast64_t)this );
+
+public:
+
+    // constructors
+    PseudoRandomNumberGenerator(){}
+
+    // virtual destructor
+    ~PseudoRandomNumberGenerator(){}
+
+    // getters
+    std::mt19937_64& get_pseudo_random_number_generator()
+    {
+        return m_PseudoRandomNumberGenerator;
+    }
+
+    // operators
+    __type operator()(uint_fast64_t _Min = 0, uint_fast64_t _Max = __huge__<__type>() )
+    {            
+        long double integer  = (long double)( _Min + m_PseudoRandomNumberGenerator() % ( ( _Max + 1 ) - _Min ) );
+        long double floating = m_PseudoRandomNumberGenerator() % 1024;
+        while( floating > 1.0 )
+            floating /= 1024;
+        return (__type)( integer + floating );
+    }
+
+};
 
 int main(int argc, char *argv[])
 {
-    gs_autotests_gs_utilities();
-    gs_autotests_gs_vector();
-    gs_autotests_gs_matrix();
+    PseudoRandomNumberGenerator<double> random;
 
-    //gs_mat4f mat(1);
+    typedef gs_matrix<double, 4, 4> mat4x4f;
+
+    mat4x4f mat_a(1.f);
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+            mat_a[i][j] = random(1.0, 100.0);
+    }
+
+    auto lu = gs_matrix_lu_factor(mat_a);
+
+    printf("A\n");
+    gs_matrix_print(mat_a);
+    printf("LU\n");
+    gs_matrix_print(lu);
+
+    // printf("int vector\n");
+    // {
+    //     gs_vec3i vec3(1, 2, 3);
+    //     gs_vector_print(vec3);
+    // }
+
+    // printf("float vector\n");
+    // {
+    //     gs_vec3f vec3(1, 2, 3);
+    //     gs_vector_print(vec3);
+    // }
+
+    // printf("double vector\n");
+    // {
+    //     gs_vec3d vec3(1, 2, 3);
+    //     gs_vector_print(vec3);
+    // }
+
+    // MyClass<int, 3> obj1(10, 20, 100, 500);
+    // obj1.print_data(); // Output: 10 20 30
+
+    //VectorND<float, 3> vec3;
+
+    // gs_autotests_gs_utilities();
+    // gs_autotests_gs_vector();
+    // gs_autotests_gs_matrix();
+
+    // gs_mat4f mat(1);
 
     // gs_matrix_rotate(
     //     mat,
-    //     gs_vec3f({(float)gs_to_radians(45), (float)gs_to_radians(45), (float)gs_to_radians(45)}));
+    //     gs_vec3f(gs_to_radians(45), gs_to_radians(45), gs_to_radians(45)));
 
     return 0;
 }
