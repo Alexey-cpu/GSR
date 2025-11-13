@@ -718,12 +718,12 @@ inline gs_matrix<Type, 4, 4> gs_matrix_rotate(const gs_matrix<Type, 4, 4>& _Matr
 
 // TODO: implement the following functions
 template<typename Type, int Size>
-auto gs_matrix_lu_factor(const gs_matrix<Type, Size, Size>& _Matrix)
+auto gs_matrix_square_factor(const gs_matrix<Type, Size, Size>& _Matrix)
 {
     struct
     {
         gs_matrix<Type, Size, Size> Matrix;
-        gs_vector<Type, Size>            InverseRowsPermutations;
+        gs_vector<Type, Size>       InverseRowsPermutations;
     } result = {_Matrix, gs_vector<Type, Size>(0)};
 
     for(int i = 0; i < Size; i++)
@@ -773,8 +773,40 @@ auto gs_matrix_lu_factor(const gs_matrix<Type, Size, Size>& _Matrix)
     return result;
 }
 
+template<typename Type, int Size>
+gs_matrix<Type, Size, Size> gs_matrix_square_solve(const gs_matrix<Type, Size, Size>& _Matrix, const gs_vector<Type, Size>& _RightHandSide)
+{
+    // factorize square matrix
+    auto factorization = gs_matrix_square_factor(_Matrix);
+
+    // invert permutations vector
+    gs_vector<Type, Size> inverseRightHandSide;
+    for (int i = 0; i < Size; i++)
+        inverseRightHandSide[factorization.InverseRowsPermutations [k]] = _RightHandSide[k];
+    
+    // solve using lower triangular matrix
+    for (int i = 0; i < Size; i++)
+    {
+        for (int j = 0; j < Size; j++)
+        {
+            // TODO: implement this...
+        }
+    }
+    
+    // solve using upper triangular matrix
+    for (int i = 0; i < Size; i++)
+    {
+        for (int j = 0; j < Size; j++)
+        {
+            // TODO: implement this...
+        }
+    }
+
+    return inverseRightHandSide;
+}
+
 template<typename Type, int Rows, int Columns>
-gs_matrix<Type, Rows, Columns> gs_invert(const gs_matrix<Type, Rows, Columns>& _Matrix)
+gs_matrix<Type, Rows, Columns> gs_matrix_invert(const gs_matrix<Type, Rows, Columns>& _Matrix)
 {
     // TODO: implement matrix inversion using right-looking LU factorization here
     return gs_matrix<Type, Rows, Columns>(1);

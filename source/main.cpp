@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
             mat_a[i][j] = random(1.0, 100.0);
     }
 
-    auto lu = gs_matrix_lu_factor(mat_a);
+    auto lu = gs_matrix_square_factor(mat_a);
 
     printf("A\n");
     gs_print(mat_a);
