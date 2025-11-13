@@ -777,7 +777,7 @@ template<typename Type, int Rows, int Columns>
 gs_matrix<Type, Rows, Columns> gs_invert(const gs_matrix<Type, Rows, Columns>& _Matrix)
 {
     // TODO: implement matrix inversion using right-looking LU factorization here
-    return LU(1);
+    return gs_matrix<Type, Rows, Columns>(1);
 }
 
 // TODO: move this to geometry header !!!
