@@ -6,17 +6,18 @@ option(GSR_BUILD_AUTOTESTS "Build autotests" ON)
 
 # include project macro
 include("cmake/collect_source_code_and_resources.cmake")
+include("tools/glad.cmake")
+include("tools/glfw.cmake")
+
 
 # configure project
-list(APPEND PATHS "source/library/")
+list(APPEND PATHS "source/library/" "source/vendor/")
 cmake_language(CALL COLLECT_SOURCE_CODE_AND_RESOURCES PATHS)
+
 add_executable(GSR ${HEADERS} ${SOURCES} "source/main.cpp")
 target_include_directories(GSR PUBLIC ${DIRECTORIES})
 
-# build tests
-if(GSR_BUILD_AUTOTESTS)
-include("cmake/enable_and_build_autotests.cmake")
-endif()
+target_link_libraries(GSR glad glfw)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

@@ -22,59 +22,20 @@
 #define GS_TO_RADIANS_CONVERSION_MULTIPLYER__ 0.01745329251994329576923690768489
 #endif
 
-// huge
 template<typename Type> Type  gs_huge();
-template<> int8_t             gs_huge(){return INT8_MAX;  }
-template<> int16_t            gs_huge(){return INT16_MAX; }
-template<> int32_t            gs_huge(){return INT32_MAX; }
-template<> int64_t            gs_huge(){return INT64_MAX; }
-template<> float              gs_huge(){return FLT_MAX;   }
-template<> double             gs_huge(){return DBL_MAX;   }
-template<> long double        gs_huge(){return LDBL_MAX;  }
-template<> uint8_t            gs_huge(){return UINT8_MAX; }
-template<> uint16_t           gs_huge(){return UINT16_MAX;}
-template<> uint32_t           gs_huge(){return UINT32_MAX;}
-template<> uint64_t           gs_huge(){return UINT64_MAX;}
-template<> unsigned long      gs_huge(){return ULONG_MAX; }
-
-// tiny
 template<typename Type> Type  gs_tiny();
-template<> int8_t             gs_tiny(){return INT8_MIN; }
-template<> int16_t            gs_tiny(){return INT16_MIN;}
-template<> int32_t            gs_tiny(){return INT32_MIN;}
-template<> int64_t            gs_tiny(){return INT64_MIN;}
-template<> float              gs_tiny(){return FLT_MIN;  }
-template<> double             gs_tiny(){return DBL_MIN;  }
-template<> long double        gs_tiny(){return LDBL_MIN; }
-template<> uint8_t            gs_tiny(){return 0;        }
-template<> uint16_t           gs_tiny(){return 0;        }
-template<> uint32_t           gs_tiny(){return 0;        }
-template<> uint64_t           gs_tiny(){return 0;        }
-template<> unsigned long      gs_tiny(){return 0;        }
-
-// epsilon
 template<typename Type> Type  gs_epsilon();
-template<> int8_t             gs_epsilon(){return 0;           }
-template<> int16_t            gs_epsilon(){return 0;           }
-template<> int32_t            gs_epsilon(){return 0;           }
-template<> int64_t            gs_epsilon(){return 0;           }
-template<> float              gs_epsilon(){return FLT_EPSILON; }
-template<> double             gs_epsilon(){return DBL_EPSILON; }
-template<> long double        gs_epsilon(){return LDBL_EPSILON;}
-template<> uint8_t            gs_epsilon(){return 0;           }
-template<> uint16_t           gs_epsilon(){return 0;           }
-template<> uint32_t           gs_epsilon(){return 0;           }
-template<> uint64_t           gs_epsilon(){return 0;           }
-template<> unsigned long      gs_epsilon(){return 0;           }
 
-inline double gs_to_degrees(const double& _Angle)
+template<typename Type>
+inline Type gs_to_degrees(const Type& _Angle)
 {
-    return _Angle * GS_TO_DEGREES_CONVERSION_MULTIPLYER__;
+    return _Angle * (Type)GS_TO_DEGREES_CONVERSION_MULTIPLYER__;
 }
 
-inline double gs_to_radians(const double& _Angle)
+template<typename Type>
+inline Type gs_to_radians(const Type& _Angle)
 {
-    return _Angle * GS_TO_RADIANS_CONVERSION_MULTIPLYER__;
+    return _Angle * (Type)GS_TO_RADIANS_CONVERSION_MULTIPLYER__;
 }
 
 template<typename Type>
@@ -158,14 +119,14 @@ struct gs_vector final
     }
 
     // &[]
-    Type& operator[](const unsigned char& _Index)
+    Type& operator[](const int& _Index)
     {
         GS_ASSERT(_Index < Size);
         return Data[_Index];
     }
 
     // const Type[]&
-    const Type& operator[](const unsigned char& _Index) const
+    const Type& operator[](const int& _Index) const
     {
         GS_ASSERT(_Index < Size);
         return Data[_Index];
@@ -429,30 +390,39 @@ struct gs_matrix final
     }
 
     // +=
-    gs_matrix<Type, Rows, Columns> operator+=(const gs_matrix<Type, Rows, Columns>& _Mat) const
+    gs_matrix<Type, Rows, Columns> operator+=(const gs_matrix<Type, Rows, Columns>& _Mat)
     {
         gs_matrix<Type, Rows, Columns> result;
         add_mat(*this, _Mat, result);
-        *this = result;
+        
+        for (int i = 0; i < Size; i++)
+            Data[i] = result.Data[i];
+        
         return *this;
     }
 
     // -=
-    gs_matrix<Type, Rows, Columns> operator-=(const gs_matrix<Type, Rows, Columns>& _Mat) const
+    gs_matrix<Type, Rows, Columns> operator-=(const gs_matrix<Type, Rows, Columns>& _Mat)
     {
         gs_matrix<Type, Rows, Columns> result;
         sub_mat(*this, _Mat, result);
-        *this = result;
+
+        for (int i = 0; i < Size; i++)
+            Data[i] = result.Data[i];
+
         return *this;
     }
 
     // *=
     template<int Dimention>
-    gs_matrix<Type, Rows, Dimention> operator*=(const gs_matrix<Type, Columns, Dimention>& _Mat) const
+    gs_matrix<Type, Rows, Dimention> operator*=(const gs_matrix<Type, Columns, Dimention>& _Mat)
     {
         gs_matrix<Type, Rows, Dimention> result;
         mul_mat(*this, _Mat, result);
-        *this = result;
+
+        for (int i = 0; i < Size; i++)
+            Data[i] = result.Data[i];
+
         return *this;
     }
 
@@ -783,12 +753,6 @@ template<typename Type> Type gs_pseudo_random(
 // TODO: move this to geometry header !!!
 //---------------------------------------------------------------------------------------------------------------------------------------
 template<typename Type>
-inline gs_matrix<Type, 4, 4> gs_ortho(const Type& _Left, const Type& _Right, const Type& _Top, const Type& _Bottom)
-{
-    return gs_matrix<Type, 4, 4>(1);
-}
-
-template<typename Type>
 inline gs_matrix<Type, 4, 4> gs_matrix_scale(const gs_matrix<Type, 4, 4>& _Matrix, const gs_vector<Type, 3>& _Transform)
 {
     gs_matrix<Type, 4, 4> transform(1);
@@ -809,38 +773,184 @@ inline gs_matrix<Type, 4, 4> gs_matrix_translate(const gs_matrix<Type, 4, 4>& _M
 }
 
 template<typename Type>
-inline gs_matrix<Type, 4, 4> gs_matrix_rotate(const gs_matrix<Type, 4, 4>& _Matrix, const gs_vector<Type, 3>& _Transform)
+inline gs_matrix<Type, 4, 4> gs_matrix_rotate(const gs_matrix<Type, 4, 4>& _Matrix, const Type& _Angle, const gs_vector<Type, 3>& _Axis)
 {
-    gs_matrix<Type, 4, 4> x_axis_rotation_matrix(1);
-    gs_matrix<Type, 4, 4> y_axis_rotation_matrix(1);
-    gs_matrix<Type, 4, 4> z_axis_rotation_matrix(1);
+    Type const a = _Angle;
+    Type const c = cos(a);
+    Type const s = sin(a);
 
-    const Type alpha = _Transform[0];
-    const Type beta  = _Transform[1];
-    const Type gamma = _Transform[2];
+    gs_vector<Type, 3> axis(gs_vector_normalize(_Axis));
+    gs_vector<Type, 3> temp(axis * (static_cast<Type>(1) - c));
 
-    // X-axis rotation matrix
-    x_axis_rotation_matrix[1][1] = +cos(alpha);
-    x_axis_rotation_matrix[2][1] = +sin(alpha);
-    x_axis_rotation_matrix[1][2] = -sin(alpha);
-    x_axis_rotation_matrix[2][2] = +cos(alpha);
+    gs_matrix<Type, 4, 4> transform;
+    transform[0][0] = c + temp[0] * axis[0];
+    transform[0][1] = temp[0] * axis[1] + s * axis[2];
+    transform[0][2] = temp[0] * axis[2] - s * axis[1];
 
-    // Y-axis rotation matrix
-    y_axis_rotation_matrix[0][0] = +cos(beta);
-    y_axis_rotation_matrix[2][0] = -sin(beta);
-    y_axis_rotation_matrix[0][2] = +sin(beta);
-    y_axis_rotation_matrix[2][2] = +cos(beta);
+    transform[1][0] = temp[1] * axis[0] - s * axis[2];
+    transform[1][1] = c + temp[1] * axis[1];
+    transform[1][2] = temp[1] * axis[2] + s * axis[0];
 
-    // Z-axis rotation matrix
-    z_axis_rotation_matrix[0][0] = +cos(gamma);
-    z_axis_rotation_matrix[1][0] = +sin(gamma);
-    z_axis_rotation_matrix[0][1] = -sin(gamma);
-    z_axis_rotation_matrix[1][1] = +cos(gamma);
+    transform[2][0] = temp[2] * axis[0] + s * axis[1];
+    transform[2][1] = temp[2] * axis[1] - s * axis[0];
+    transform[2][2] = c + temp[2] * axis[2];
 
-    return x_axis_rotation_matrix * y_axis_rotation_matrix * z_axis_rotation_matrix;
+    return _Matrix * transform;
+}
+
+template<typename Type>
+inline gs_matrix<Type, 4, 4> gs_matrix_ortho(
+    const Type& _Left,
+    const Type& _Right,
+    const Type& _Top,
+    const Type& _Bottom,
+    const Type& _Near,
+    const Type& _Far)
+{
+    gs_matrix<Type, 4, 4> transform(1);
+    transform[0][0] = static_cast<Type>(2) / (_Right - _Left);
+    transform[1][1] = static_cast<Type>(2) / (_Top - _Bottom);
+    transform[2][2] = - static_cast<Type>(2) / (_Far - _Near);
+    transform[3][0] = - (_Right + _Left) / (_Right - _Left);
+    transform[3][1] = - (_Top + _Bottom) / (_Top - _Bottom);
+    transform[3][2] = - (_Far + _Near) / (_Far - _Near);
+    return transform;
+}
+
+template<typename Type>
+inline gs_matrix<Type, 4, 4> gs_matrix_perspective(
+    const Type& _FieldOfView,
+    const Type& _Aspect,
+    const Type& _Far,
+    const Type& _Near)
+{
+    GS_ASSERT(abs(_Aspect - gs_epsilon<Type>())> static_cast<Type>(0));
+    Type const tanHalfFovy = tan(_FieldOfView / static_cast<Type>(2));
+    gs_matrix<Type, 4, 4> transform(static_cast<Type>(0));
+    transform[0][0] = static_cast<Type>(1) / (_Aspect * tanHalfFovy);
+    transform[1][1] = static_cast<Type>(1) / (tanHalfFovy);
+    transform[2][2] = - (_Far + _Near) / (_Far - _Near);
+    transform[2][3] = - static_cast<Type>(1);
+    transform[3][2] = - (static_cast<Type>(2) * _Far * _Near) / (_Far - _Near);
+    return transform;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------
+
+// containers
+template<typename Type>
+class gs_containers_vector final
+{
+public:
+
+    gs_containers_vector(const int& _Size = 0)
+    {
+        resize(_Size);
+    }
+
+    gs_containers_vector(const gs_containers_vector<Type>& _Other)
+    {
+        resize(_Other.Size);
+        for (int i = 0; i < _Other.size(); i++)
+            Data[i] = _Other.Data[i];
+    }
+
+    gs_containers_vector(const gs_containers_vector<Type>&& _Other)
+    {
+        // steal data
+        Data     = _Other.Data;
+        Size     = _Other.Size;
+        Capacity = _Other.Capacity;
+
+        // leave other object in safe destructable state
+        _Other.Data     = nullptr;
+        _Other.Size     = 0;
+        _Other.Capacity = 0;
+    }
+
+    ~gs_containers_vector()
+    {
+        if(Data != nullptr)
+            free(Data);
+        Data = nullptr;
+    }
+
+    Type& at(const int& _Index)
+    {
+        return Data[_Index];
+    }
+
+    int size() const
+    {
+        return Size;
+    }
+
+    int capacity() const
+    {
+        return Capacity;
+    }
+
+    void push_back(const Type& _Value)
+    {
+        resize(Size + 1);
+        Data[Size - 1] = _Value;
+    }
+
+    void shrink()
+    {
+        Capacity = gs_max(gs_min(Capacity, Size), 16);
+        Data     = (Type*)realloc(Data, sizeof(Type) * Capacity);
+    }
+
+    void pop_back()
+    {
+        Size = gs_max(0, --Size);
+    }
+
+    void erase(const int& _Index)
+    {
+        for (int i = _Index + 1; i < Size; i++)
+            gs_swap(Data[i], Data[i - 1]);
+        pop_back();
+    }
+
+    void resize(int _Size)
+    {
+        Size = _Size;
+
+        if(Data == nullptr)
+        {
+            Capacity = gs_max(Capacity, Size);
+            Data     = (Type*)malloc(sizeof(Type) * Capacity);
+            return;
+        }
+
+        if(Capacity < Size)
+        {
+            Capacity = Size * 2;
+            Data     = (Type*)realloc(Data, sizeof(Type) * Capacity);
+            return;
+        }
+    }
+    
+    // operators
+    Type& operator[](const int& _Index)
+    {
+        GS_ASSERT(_Index < Size);
+        return Data[_Index];
+    }
+
+    const Type& operator[](const int& _Index) const
+    {
+        GS_ASSERT(_Index < Size);
+        return Data[_Index];
+    }
+
+protected:
+    Type* Data    {nullptr};
+    int   Size    {0};
+    int   Capacity{16};
+};
 
 // vectors typedefs
 typedef gs_vector<float,  2> gs_vec2f;

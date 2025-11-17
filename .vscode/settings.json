@@ -56,6 +56,17 @@
         "xutility": "cpp",
         "random": "cpp",
         "optional": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "xhash": "cpp",
+        "array": "cpp",
+        "chrono": "cpp",
+        "cstdarg": "cpp",
+        "forward_list": "cpp",
+        "functional": "cpp",
+        "iomanip": "cpp",
+        "list": "cpp",
+        "ratio": "cpp",
+        "sstream": "cpp",
+        "string": "cpp"
     }
 }
